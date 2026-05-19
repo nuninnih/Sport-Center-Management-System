@@ -1,0 +1,2 @@
+-- DML
+-- INSERT DATA TO TABLE

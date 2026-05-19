@@ -1,0 +1,6 @@
+-- CREATE DB
+CREATE DATABASE IF NOT EXISTS SportCenter
+
+USE SportCenter
+
+-- CREATE TABLES
