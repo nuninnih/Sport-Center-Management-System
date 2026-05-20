@@ -33,8 +33,8 @@ func (h *Handler) GetAvailableField(CityName, TypeName, BookingDate, StartTime, 
 	ON f.CityID = c.ID
 	WHERE
 		f.IsActive = TRUE
-	AND c.CityName = ?
-	AND ft.TypeName = ?
+	AND LOWER(c.CityName) = LOWER(?)
+	AND LOWER(ft.TypeName) = LOWER(?)
 	AND f.ID NOT IN (
     SELECT b.FieldID
     FROM Bookings b
