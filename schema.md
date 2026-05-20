@@ -10,7 +10,7 @@
 - Email
 - PhoneNumber
 - Password
-- Role
+- UserRole
 
 ### Cities
 
@@ -75,7 +75,7 @@
 
 - Users.Email should be unique
 - Users.Password should be hashes
-- Users.Role should be
+- Users.UserRole should be
   'ADMIN',
   'CUSTOMER'
 - Bookings.BookingStatus should be
