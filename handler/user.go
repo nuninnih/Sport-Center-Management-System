@@ -13,6 +13,7 @@ type User struct {
 	LastName    string
 	Email       string
 	PhoneNumber string
+	UserRole    string
 }
 
 func (h *Handler) Register(FirstName, LastName, Email, PhoneNumber, Password string) error {
@@ -27,22 +28,27 @@ func (h *Handler) Register(FirstName, LastName, Email, PhoneNumber, Password str
 	return nil
 }
 
-func (h *Handler) Login(Email, PhoneNumber, Password string) (User, error) {
+func (h *Handler) Login(Account, Password string) (User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	row := h.DB.QueryRowContext(ctx, `
 	SELECT 
-		*
-	FROM User
+		ID,
+		FirstName,
+		LastName,
+		Email,
+		PhoneNumber,
+		UserRole
+	FROM Users
 	WHERE 
 	 (Email = ? OR PhoneNumber = ? )
 	 AND
 	 Password = ?
-	`, Email, PhoneNumber, Password)
+	`, Account, Account, Password)
 
 	var user User
-	err := row.Scan(&user.UserID, &user.FirstName, &user.LastName, &user.Email, &user.PhoneNumber)
+	err := row.Scan(&user.UserID, &user.FirstName, &user.LastName, &user.Email, &user.PhoneNumber, &user.UserRole)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return User{}, nil

@@ -80,6 +80,49 @@ func (c *CLI) Run() {
 			}
 			fmt.Println("Success Registering New User")
 		case 2:
+			prompt := promptui.Prompt{
+				Label:    "Please enter Email or PhoneNumber",
+				Validate: validateStringLength,
+			}
+			Account, _ := prompt.Run()
+
+			prompt = promptui.Prompt{
+				Label:    "Please enter Password",
+				Validate: validateStringLength,
+			}
+			Password, _ := prompt.Run()
+
+			user, err := c.Handler.Login(Account, Password)
+			if err != nil {
+				fmt.Println("Login Error:", err)
+				return
+			}
+			if user.UserID != 0 {
+				if user.UserRole == "CUSTOMER" {
+					// CUSTOMER
+					promptCustomer := promptui.Select{
+						Label: "What do you want to do?",
+						Items: []string{"1. Check Available Field", "2. Book"},
+					}
+
+					index, _, err := promptCustomer.Run()
+
+					if err != nil {
+						fmt.Printf("Prompt failed %v\n", err)
+						continue
+					}
+
+					switch index + 1 {
+					case 1:
+					case 2:
+					}
+
+				} else {
+					// ADMIN
+				}
+			} else {
+				fmt.Println("Login Failed!")
+			}
 		case 3:
 			fmt.Println("Exiting the application. Goodbye!")
 			return
