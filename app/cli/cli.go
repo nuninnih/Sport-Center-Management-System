@@ -17,12 +17,6 @@ func NewCLI(handler *handler.Handler) *CLI {
 }
 
 func (c *CLI) Run() {
-	validateStringLength := func(input string) error {
-		if len(input) < 1 || len(input) > 100 {
-			return errors.New("input must be at least 1 until 100 characters long\n")
-		}
-		return nil
-	}
 	for {
 		prompt := promptui.Select{
 			Label: "Select Menu",
@@ -40,31 +34,31 @@ func (c *CLI) Run() {
 		case 1:
 			prompt := promptui.Prompt{
 				Label:    "Please enter First Name",
-				Validate: validateStringLength,
+				Validate: ValidateStringLength,
 			}
 			FirstName, _ := prompt.Run()
 
 			prompt = promptui.Prompt{
 				Label:    "Please enter Last Name",
-				Validate: validateStringLength,
+				Validate: ValidateStringLength,
 			}
 			LastName, _ := prompt.Run()
 
 			prompt = promptui.Prompt{
 				Label:    "Please enter Email",
-				Validate: validateStringLength,
+				Validate: ValidateStringLength,
 			}
 			Email, _ := prompt.Run()
 
 			prompt = promptui.Prompt{
 				Label:    "Please enter Phone Number",
-				Validate: validateStringLength,
+				Validate: ValidateStringLength,
 			}
 			PhoneNumber, _ := prompt.Run()
 
 			prompt = promptui.Prompt{
 				Label:    "Please enter Password",
-				Validate: validateStringLength,
+				Validate: ValidateStringLength,
 			}
 			Password, _ := prompt.Run()
 
@@ -82,13 +76,13 @@ func (c *CLI) Run() {
 		case 2:
 			prompt := promptui.Prompt{
 				Label:    "Please enter Email or PhoneNumber",
-				Validate: validateStringLength,
+				Validate: ValidateStringLength,
 			}
 			Account, _ := prompt.Run()
 
 			prompt = promptui.Prompt{
 				Label:    "Please enter Password",
-				Validate: validateStringLength,
+				Validate: ValidateStringLength,
 			}
 			Password, _ := prompt.Run()
 
@@ -100,23 +94,7 @@ func (c *CLI) Run() {
 			if user.UserID != 0 {
 				if user.UserRole == "CUSTOMER" {
 					// CUSTOMER
-					promptCustomer := promptui.Select{
-						Label: "What do you want to do?",
-						Items: []string{"1. Check Available Field", "2. Book"},
-					}
-
-					index, _, err := promptCustomer.Run()
-
-					if err != nil {
-						fmt.Printf("Prompt failed %v\n", err)
-						continue
-					}
-
-					switch index + 1 {
-					case 1:
-					case 2:
-					}
-
+					MenuCustomer(c)
 				} else {
 					// ADMIN
 				}
@@ -128,4 +106,11 @@ func (c *CLI) Run() {
 			return
 		}
 	}
+}
+
+func ValidateStringLength(input string) error {
+	if len(input) < 1 || len(input) > 100 {
+		return errors.New("input must be at least 1 until 100 characters long\n")
+	}
+	return nil
 }
