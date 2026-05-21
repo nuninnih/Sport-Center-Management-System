@@ -50,6 +50,48 @@ func FieldTable(data interface{}) {
 	_ = table.Render()
 }
 
+func FieldStatusTable(data interface{}) {
+	tableData := [][]string{
+		{"FieldID", "FieldName", "TypeName", "CityName", "HourlyRate", "Is Active"},
+	}
+
+	switch v := data.(type) {
+
+	case handler.FieldStatus:
+		row := []string{
+			strconv.Itoa(v.FieldID),
+			v.FieldName,
+			v.FieldType,
+			v.City,
+			strconv.FormatFloat(v.HourlyRate, 'f', 2, 64),
+			strconv.FormatBool(v.IsActive),
+		}
+		tableData = append(tableData, row)
+
+	case []handler.FieldStatus:
+		for _, field := range v {
+			row := []string{
+				strconv.Itoa(field.FieldID),
+				field.FieldName,
+				field.FieldType,
+				field.City,
+				strconv.FormatFloat(field.HourlyRate, 'f', 2, 64),
+				strconv.FormatBool(field.IsActive),
+			}
+			tableData = append(tableData, row)
+		}
+
+	default:
+		fmt.Println("unsupported type")
+		return
+	}
+
+	table := tablewriter.NewWriter(os.Stdout)
+	table.Header(tableData[0])
+	_ = table.Bulk(tableData[1:])
+	_ = table.Render()
+}
+
 func CityTable(data interface{}) {
 	tableData := [][]string{
 		{"ID", "City"},
@@ -103,6 +145,50 @@ func TypeTable(data interface{}) {
 			row := []string{
 				strconv.Itoa(tp.TypeID),
 				tp.TypeName,
+			}
+			tableData = append(tableData, row)
+		}
+
+	default:
+		fmt.Println("unsupported type")
+		return
+	}
+
+	table := tablewriter.NewWriter(os.Stdout)
+	table.Header(tableData[0])
+	_ = table.Bulk(tableData[1:])
+	_ = table.Render()
+}
+
+func BookingTable(data interface{}) {
+	tableData := [][]string{
+		{"BookingID", "Field", "User", "Phone No.", "Booking Date", "Start Time", "End Time"},
+	}
+
+	switch v := data.(type) {
+
+	case handler.PendingBooking:
+		row := []string{
+			strconv.Itoa(v.BookingID),
+			v.FieldName,
+			v.UserName,
+			v.PhoneNumber,
+			v.BookingDate,
+			v.StartTime,
+			v.EndTime,
+		}
+		tableData = append(tableData, row)
+
+	case []handler.PendingBooking:
+		for _, booking := range v {
+			row := []string{
+				strconv.Itoa(booking.BookingID),
+				booking.FieldName,
+				booking.UserName,
+				booking.PhoneNumber,
+				booking.BookingDate,
+				booking.StartTime,
+				booking.EndTime,
 			}
 			tableData = append(tableData, row)
 		}

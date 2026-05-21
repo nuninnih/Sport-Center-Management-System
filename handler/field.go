@@ -16,6 +16,16 @@ type Field struct {
 	HourlyRate float64
 }
 
+type FieldStatus struct {
+	FieldID    int
+	FieldName  string
+	FieldType  string
+	Address    string
+	City       string
+	HourlyRate float64
+	IsActive   bool
+}
+
 func (h *Handler) GetAllField() ([]Field, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -97,4 +107,67 @@ func (h *Handler) GetFieldByID(id int) (Field, error) {
 		return Field{}, err
 	}
 	return field, nil
+}
+
+func (h *Handler) GetAllFieldWithStatus() ([]FieldStatus, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	rows, err := h.DB.QueryContext(ctx, `
+	SELECT 
+		f.ID as FieldID,
+		f.FieldName,
+		ft.TypeName,
+		f.address,
+		c.CityName,
+		f.HourlyRate,
+		f.IsActive
+	FROM Fields f
+	JOIN FieldTypes ft
+	ON f.FieldTypeID = ft.ID
+	JOIN Cities c
+	ON f.CityID = c.ID
+	`)
+	if err != nil {
+		fmt.Println("Error querying data:", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var fields []FieldStatus
+
+	for rows.Next() {
+		var FieldID int
+		var FieldName string
+		var TypeName string
+		var Address string
+		var CityName string
+		var HourlyRate float64
+		var IsActive bool
+		err := rows.Scan(&FieldID, &FieldName, &TypeName, &Address, &CityName, &HourlyRate, &IsActive)
+		if err != nil {
+			fmt.Println("Error scanning row:", err)
+			return nil, err
+		}
+		fields = append(fields, FieldStatus{FieldID: FieldID, FieldName: FieldName, FieldType: TypeName, Address: Address, City: CityName, HourlyRate: HourlyRate, IsActive: IsActive})
+	}
+
+	err = rows.Err()
+	if err != nil {
+		fmt.Println("Error with rows:", err)
+		return nil, err
+	}
+	return fields, nil
+}
+
+func (h *Handler) UpdateStatusField(FieldID int) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	_, err := h.DB.ExecContext(ctx, "UPDATE Fields SET IsActive = NOT IsActive WHERE ID = ?;", FieldID)
+	if err != nil {
+		fmt.Println("Error inserting data:", err)
+		return err
+	}
+	return nil
 }

@@ -1,13 +1,11 @@
 package cli
 
 import (
-	"errors"
 	"fmt"
-	"strconv"
-	"time"
 
 	"github.com/manifoldco/promptui"
 	"github.com/nuninnih/Sport-Center-Management-System/handler"
+	"github.com/nuninnih/Sport-Center-Management-System/helper"
 )
 
 type CLI struct {
@@ -36,31 +34,31 @@ func (c *CLI) Run() {
 		case 1:
 			prompt := promptui.Prompt{
 				Label:    "Please enter First Name",
-				Validate: ValidateStringLength,
+				Validate: helper.ValidateStringLength,
 			}
 			FirstName, _ := prompt.Run()
 
 			prompt = promptui.Prompt{
 				Label:    "Please enter Last Name",
-				Validate: ValidateStringLength,
+				Validate: helper.ValidateStringLength,
 			}
 			LastName, _ := prompt.Run()
 
 			prompt = promptui.Prompt{
 				Label:    "Please enter Email",
-				Validate: ValidateStringLength,
+				Validate: helper.ValidateStringLength,
 			}
 			Email, _ := prompt.Run()
 
 			prompt = promptui.Prompt{
 				Label:    "Please enter Phone Number",
-				Validate: ValidateStringLength,
+				Validate: helper.ValidateStringLength,
 			}
 			PhoneNumber, _ := prompt.Run()
 
 			prompt = promptui.Prompt{
 				Label:    "Please enter Password",
-				Validate: ValidateStringLength,
+				Validate: helper.ValidateStringLength,
 			}
 			Password, _ := prompt.Run()
 
@@ -78,13 +76,13 @@ func (c *CLI) Run() {
 		case 2:
 			prompt := promptui.Prompt{
 				Label:    "Please enter Email or PhoneNumber",
-				Validate: ValidateStringLength,
+				Validate: helper.ValidateStringLength,
 			}
 			Account, _ := prompt.Run()
 
 			prompt = promptui.Prompt{
 				Label:    "Please enter Password",
-				Validate: ValidateStringLength,
+				Validate: helper.ValidateStringLength,
 			}
 			Password, _ := prompt.Run()
 
@@ -99,6 +97,7 @@ func (c *CLI) Run() {
 					MenuCustomer(c, user)
 				} else {
 					// ADMIN
+					MenuAdmin(c)
 				}
 			} else {
 				fmt.Println("Login Failed!")
@@ -108,32 +107,4 @@ func (c *CLI) Run() {
 			return
 		}
 	}
-}
-
-func ValidateStringLength(input string) error {
-	if len(input) < 1 || len(input) > 100 {
-		return errors.New("input must be at least 1 until 100 characters long\n")
-	}
-	return nil
-}
-
-func GetIntegerInput(numb string) int {
-	numbInt, _ := strconv.Atoi(numb)
-	return numbInt
-}
-
-func IsDateAfterToday(input string) error {
-	inputDate, err := time.ParseInLocation("2006-01-02", input, time.Local)
-	if err != nil {
-		fmt.Println("Error parsing date:", err)
-		return err
-	}
-
-	now := time.Now()
-	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
-
-	if inputDate.Before(today) {
-		return errors.New("Minimal input is today")
-	}
-	return nil
 }
