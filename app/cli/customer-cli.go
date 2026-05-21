@@ -4,9 +4,10 @@ import (
 	"fmt"
 
 	"github.com/manifoldco/promptui"
+	"github.com/nuninnih/Sport-Center-Management-System/handler"
 )
 
-func MenuCustomer(c *CLI) {
+func MenuCustomer(c *CLI, user handler.User) {
 	for {
 		promptCustomer := promptui.Select{
 			Label: "What do you want to do?",
@@ -22,17 +23,50 @@ func MenuCustomer(c *CLI) {
 
 		switch index + 1 {
 		case 1:
+			allCity, err := c.Handler.GetAllCities()
+			CityTable(allCity)
+
 			prompt := promptui.Prompt{
 				Label:    "Please Enter The City",
 				Validate: ValidateStringLength,
 			}
 			City, _ := prompt.Run()
 
+			allType, err := c.Handler.GetAllTypes()
+			TypeTable(allType)
+
 			prompt = promptui.Prompt{
 				Label:    "Please Enter Field Type",
 				Validate: ValidateStringLength,
 			}
 			Type, _ := prompt.Run()
+
+			prompt = promptui.Prompt{
+				Label:    "Please Enter Date (YYYY-MM-DD)",
+				Validate: ValidateStringLength,
+			}
+			Date, _ := prompt.Run()
+
+			fields, err := c.Handler.CheckAvailableSlot(Date, City, Type)
+			if err != nil {
+				fmt.Println("Error getting fields:", err)
+				return
+			}
+			if len(fields) != 0 {
+				RenderAvailability(fields, Date, City, Type)
+			} else {
+				fmt.Printf("There is no available %v field in %v \n", Type, City)
+			}
+		case 2:
+			allField, err := c.Handler.GetAllField()
+			FieldTable(allField)
+
+			prompt := promptui.Prompt{
+				Label:    "Please Enter Field ID",
+				Validate: ValidateStringLength,
+			}
+			field, _ := prompt.Run()
+			FieldID := GetIntegerInput(field)
 
 			prompt = promptui.Prompt{
 				Label:    "Please Enter Date (YYYY-MM-DD)",
@@ -52,18 +86,14 @@ func MenuCustomer(c *CLI) {
 			}
 			EndTime, _ := prompt.Run()
 
-			fields, err := c.Handler.GetAvailableField(City, Type, Date, StartTime, EndTime)
+			err = c.Handler.CreateBooking(user.UserID, FieldID, Date, StartTime, EndTime)
+
 			if err != nil {
-				fmt.Println("Error getting fields:", err)
+				fmt.Println("Error create booking", err)
 				return
 			}
-			if len(fields) != 0 {
-				FieldTable(fields)
-			} else {
-				fmt.Println("Field not found")
-			}
-		case 2:
-			fmt.Println("Not Available Yet")
+
+			fmt.Println("Booking created successfully")
 		case 3:
 			fmt.Println("Logout..")
 			return
