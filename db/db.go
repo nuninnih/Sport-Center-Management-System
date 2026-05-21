@@ -3,27 +3,23 @@ package db
 import (
 	"database/sql"
 	"fmt"
-	"log"
-
-	_ "github.com/go-sql-driver/mysql"
+	"os"
 )
 
-var DB *sql.DB
-
-func ConnectDB() {
-	dsn := "root:@tcp(127.0.0.1:3306)/sport_center"
-
-	db, err := sql.Open("mysql", dsn)
+func InitDB() (db *sql.DB, err error) {
+	db, err = sql.Open("mysql", os.Getenv("MYSQL_DSN"))
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println("Error connecting to database:", err)
+		return db, err
 	}
 
 	err = db.Ping()
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println("Error pinging database:", err)
+		return db, err
 	}
 
-	DB = db
-
-	fmt.Println("Database Connected!")
+	fmt.Println("Successfully connected to the database!")
+	fmt.Println()
+	return db, err
 }
