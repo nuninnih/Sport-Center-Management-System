@@ -8,12 +8,11 @@ import (
 	"github.com/nuninnih/Sport-Center-Management-System/handler"
 )
 
-type CLI struct {
-	Handler *handler.Handler
-}
+type CLI struct{}
 
-func NewCLI(handler *handler.Handler) *CLI {
-	return &CLI{Handler: handler}
+// create new cli
+func NewCLI() *CLI {
+	return &CLI{}
 }
 
 func (c *CLI) Run() {
