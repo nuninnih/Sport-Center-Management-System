@@ -5,13 +5,14 @@ import (
 
 	"github.com/manifoldco/promptui"
 	"github.com/nuninnih/Sport-Center-Management-System/handler"
+	"github.com/nuninnih/Sport-Center-Management-System/helper"
 )
 
 func MenuCustomer(c *CLI, user handler.User) {
 	for {
 		promptCustomer := promptui.Select{
 			Label: "What do you want to do?",
-			Items: []string{"1. Check Available Field", "2. Book", "3. Logout"},
+			Items: []string{"1. Check Available Field", "2. Booking Fields", "3. Logout"},
 		}
 
 		index, _, err := promptCustomer.Run()
@@ -28,7 +29,7 @@ func MenuCustomer(c *CLI, user handler.User) {
 
 			prompt := promptui.Prompt{
 				Label:    "Please Enter The City",
-				Validate: ValidateStringLength,
+				Validate: helper.ValidateStringLength,
 			}
 			City, _ := prompt.Run()
 
@@ -37,13 +38,13 @@ func MenuCustomer(c *CLI, user handler.User) {
 
 			prompt = promptui.Prompt{
 				Label:    "Please Enter Field Type",
-				Validate: ValidateStringLength,
+				Validate: helper.ValidateStringLength,
 			}
 			Type, _ := prompt.Run()
 
 			prompt = promptui.Prompt{
 				Label:    "Please Enter Date (YYYY-MM-DD)",
-				Validate: ValidateStringLength,
+				Validate: helper.ValidateStringLength,
 			}
 			Date, _ := prompt.Run()
 
@@ -63,26 +64,26 @@ func MenuCustomer(c *CLI, user handler.User) {
 
 			prompt := promptui.Prompt{
 				Label:    "Please Enter Field ID",
-				Validate: ValidateStringLength,
+				Validate: helper.ValidateStringLength,
 			}
 			field, _ := prompt.Run()
-			FieldID := GetIntegerInput(field)
+			FieldID := helper.GetIntegerInput(field)
 
 			prompt = promptui.Prompt{
 				Label:    "Please Enter Date (YYYY-MM-DD)",
-				Validate: ValidateStringLength,
+				Validate: helper.ValidateStringLength,
 			}
 			Date, _ := prompt.Run()
 
 			prompt = promptui.Prompt{
 				Label:    "Please Enter Start Time (hh:mm)",
-				Validate: ValidateStringLength,
+				Validate: helper.ValidateStringLength,
 			}
 			StartTime, _ := prompt.Run()
 
 			prompt = promptui.Prompt{
 				Label:    "Please Enter End Time (hh:mm)",
-				Validate: ValidateStringLength,
+				Validate: helper.ValidateStringLength,
 			}
 			EndTime, _ := prompt.Run()
 

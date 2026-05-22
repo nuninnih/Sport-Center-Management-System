@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -11,6 +12,16 @@ type CheckBooking struct {
 	FieldName   string
 	FieldType   string
 	CityName    string
+	BookingDate string
+	StartTime   string
+	EndTime     string
+}
+
+type PendingBooking struct {
+	BookingID   int
+	FieldName   string
+	UserName    string
+	PhoneNumber string
 	BookingDate string
 	StartTime   string
 	EndTime     string
@@ -107,14 +118,81 @@ func (h *Handler) CreateBooking(UserID, FieldID int, BookingDate, StartTime, End
 	return nil
 }
 
-func (h *Handler) ConfirmBooking(BookingID int, status string) error {
+func (h *Handler) UpdateBookingStatus(BookingID int, status string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	_, err := h.DB.ExecContext(ctx, "UPDATE Bookings SET BookingStatus = ? WHERE ID = ?", status, BookingID)
+	var finalStatus string
+
+	switch strings.ToLower(status) {
+	case "cancel":
+		finalStatus = "CANCELLED"
+	case "confirm":
+		finalStatus = "CONFIRMED"
+	case "complete":
+		finalStatus = "COMPLETED"
+	}
+
+	_, err := h.DB.ExecContext(ctx, "UPDATE Bookings SET BookingStatus = ? WHERE ID = ?", finalStatus, BookingID)
 	if err != nil {
 		fmt.Println("Error inserting data:", err)
 		return err
 	}
 	return nil
+}
+
+func (h *Handler) CheckPendingBooking() ([]PendingBooking, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	rows, err := h.DB.QueryContext(ctx, `
+	SELECT
+		b.ID,
+		f.FieldName,
+		u.FirstName,
+		u.PhoneNumber,
+		b.BookingDate,
+		b.StartTime,
+		b.EndTime
+	FROM Fields f
+	JOIN Bookings b
+		ON f.ID = b.FieldID
+	JOIN Users u
+		ON b.UserID = u.ID
+	WHERE
+		f.IsActive = TRUE
+		AND
+		b.BookingStatus = 'PENDING'
+		;
+	`)
+	if err != nil {
+		fmt.Println("Error querying data:", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var check []PendingBooking
+
+	for rows.Next() {
+		var BookingID int
+		var FieldName string
+		var UserName string
+		var PhoneNumber string
+		var BookingDate string
+		var StartTime string
+		var EndTime string
+		err := rows.Scan(&BookingID, &FieldName, &UserName, &PhoneNumber, &BookingDate, &StartTime, &EndTime)
+		if err != nil {
+			fmt.Println("Error scanning row:", err)
+			return nil, err
+		}
+		check = append(check, PendingBooking{BookingID: BookingID, FieldName: FieldName, UserName: UserName, PhoneNumber: PhoneNumber, BookingDate: BookingDate, StartTime: StartTime, EndTime: EndTime})
+	}
+
+	err = rows.Err()
+	if err != nil {
+		fmt.Println("Error with rows:", err)
+		return nil, err
+	}
+	return check, nil
 }
