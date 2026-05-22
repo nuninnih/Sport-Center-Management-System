@@ -28,6 +28,20 @@ type FieldMostRevenue struct {
 	TotalRevenue  float64
 }
 
+type RevenuePerType struct {
+	FieldType    string
+	TotalRevenue float64
+}
+
+type MostSpender struct {
+	UserID        int
+	UserName      string
+	PhoneNumber   string
+	TotalBookings int
+	TotalHours    float64
+	TotalSpend    float64
+}
+
 func (h *Handler) ReportRevenueInAYear() ([]RevenueInAYear, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -168,6 +182,106 @@ func (h *Handler) ReportFieldWithMostRevenue() ([]FieldMostRevenue, error) {
 			return nil, err
 		}
 		report = append(report, FieldMostRevenue{FieldName: FieldName, FieldType: FieldType, CityName: CityName, TotalBookings: TotalBookings, TotalRevenue: TotalRevenue})
+	}
+
+	err = rows.Err()
+	if err != nil {
+		fmt.Println("Error with rows:", err)
+		return nil, err
+	}
+	return report, nil
+}
+
+func (h *Handler) ReportRevenuePerType() ([]RevenuePerType, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	rows, err := h.DB.QueryContext(ctx, `
+	SELECT
+		ft.TypeName,
+		IFNULL(SUM(p.Amount), 0) AS TotalRevenue
+	FROM Payments p
+	JOIN Bookings b
+		ON p.BookingID = b.ID
+	JOIN Fields f
+		ON b.FieldID = f.ID
+	JOIN FieldTypes ft
+		ON f.FieldTypeID = ft.ID
+	WHERE
+		p.PaymentStatus = 'PAID'
+		AND YEAR(p.PaidAt) = YEAR(CURRENT_DATE)
+	GROUP BY ft.ID, ft.TypeName
+	ORDER BY TotalRevenue DESC;`)
+
+	if err != nil {
+		fmt.Println("Error querying data:", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var report []RevenuePerType
+
+	for rows.Next() {
+		var FieldType string
+		var TotalRevenue float64
+		err := rows.Scan(&FieldType, &TotalRevenue)
+		if err != nil {
+			fmt.Println("Error scanning row:", err)
+			return nil, err
+		}
+		report = append(report, RevenuePerType{FieldType: FieldType, TotalRevenue: TotalRevenue})
+	}
+
+	err = rows.Err()
+	if err != nil {
+		fmt.Println("Error with rows:", err)
+		return nil, err
+	}
+	return report, nil
+}
+
+func (h *Handler) ReportMostSpender() ([]MostSpender, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	rows, err := h.DB.QueryContext(ctx, `
+	SELECT
+		u.ID,
+		CONCAT(u.FirstName, ' ', u.LastName) AS CustomerName,
+		u.PhoneNumber,
+		COUNT(b.ID) AS TotalBookings,
+		SUM(b.TotalHours) AS TotalHours,
+		SUM(b.TotalPrice) AS TotalSpent
+	FROM Users u
+	JOIN Bookings b
+		ON u.ID = b.UserID
+	WHERE u.UserRole = 'CUSTOMER'
+	AND b.BookingStatus IN ('CONFIRMED', 'COMPLETED')
+	GROUP BY u.ID
+	HAVING SUM(b.TotalPrice) > 1000000
+	ORDER BY TotalSpent DESC;`)
+
+	if err != nil {
+		fmt.Println("Error querying data:", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var report []MostSpender
+
+	for rows.Next() {
+		var UserID int
+		var UserName string
+		var PhoneNumber string
+		var TotalBookings int
+		var TotalHours float64
+		var TotalSpend float64
+		err := rows.Scan(&UserID, &UserName, &PhoneNumber, &TotalBookings, &TotalHours, &TotalSpend)
+		if err != nil {
+			fmt.Println("Error scanning row:", err)
+			return nil, err
+		}
+		report = append(report, MostSpender{UserID: UserID, UserName: UserName, PhoneNumber: PhoneNumber, TotalBookings: TotalBookings, TotalHours: TotalHours, TotalSpend: TotalSpend})
 	}
 
 	err = rows.Err()

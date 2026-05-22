@@ -311,22 +311,20 @@ func RenderAvailability(bookings []handler.CheckBooking, Date, City, Type string
 }
 
 func PaymentMethodTable() {
-	fmt.Println("================================")
-	fmt.Printf("%-15s", "CODE NUMBER")
-	fmt.Printf("%-15s", "PAYMENT METHOD \n")
-	fmt.Println("================================")
-	fmt.Printf("%-15s", "1")
-	fmt.Printf("%-15s", "CASH \n")
-	fmt.Println()
-	fmt.Printf("%-15s", "2")
-	fmt.Printf("%-15s", "BANK_TRANSFER \n")
-	fmt.Println()
-	fmt.Printf("%-15s", "3")
-	fmt.Printf("%-15s", "E_WALLET \n")
-	fmt.Println()
-	fmt.Printf("%-15s", "4")
-	fmt.Printf("%-15s", "CREDIT_CARD \n")
-	fmt.Println("================================")
+	fmt.Println("==============================================================")
+	fmt.Println("                    PAYMENT METHOD")
+	fmt.Println("==============================================================")
+
+	fmt.Printf("%-5s %-35s\n", "CODE", "METHOD")
+
+	fmt.Println("--------------------------------------------------------------")
+
+	fmt.Printf("%-5d %-35s\n", 1, "CASH")
+	fmt.Printf("%-5d %-35s\n", 2, "BANK_TRANSFER")
+	fmt.Printf("%-5d %-35s\n", 3, "E_WALLET")
+	fmt.Printf("%-5d %-35s\n", 4, "CREDIT_CARD")
+
+	fmt.Println("==============================================================")
 }
 
 func PendingPaymentTable(data interface{}) {
@@ -488,20 +486,119 @@ func TableFieldWithMostRevenue(data interface{}) {
 }
 
 func ReportListTable() {
-	fmt.Println("================================")
-	fmt.Printf("%-15s", "NO REPORT")
-	fmt.Printf("%-25s", "REPORT")
+	fmt.Println("==============================================================")
+	fmt.Println("                    SPORT CENTER REPORTS")
+	fmt.Println("==============================================================")
+
+	fmt.Printf("%-5s %-35s\n", "NO", "REPORT NAME")
+
+	fmt.Println("--------------------------------------------------------------")
+
+	fmt.Printf("%-5d %-35s\n", 1, "REVENUE THIS YEAR")
+	fmt.Printf("%-5d %-35s\n", 2, "REVENUE PER CITY")
+	fmt.Printf("%-5d %-35s\n", 3, "FIELD WITH MOST REVENUE")
+	fmt.Printf("%-5d %-35s\n", 4, "REVENUE PER FIELD TYPE")
+	fmt.Printf("%-5d %-35s\n", 5, "MOST SPENDER")
+
+	fmt.Println("==============================================================")
+	fmt.Print("Choose Report: ")
+}
+
+func ChartRevenuePerType(reports []handler.RevenuePerType) {
+	maxRevenue := 0.0
+
+	for _, report := range reports {
+		if report.TotalRevenue > maxRevenue {
+			maxRevenue = report.TotalRevenue
+		}
+	}
+
+	if maxRevenue == 0 {
+		fmt.Println("No revenue data")
+		return
+	}
+
+	fmt.Println("======================================================")
+	fmt.Println("          TOTAL REVENUE PER FIELD TYPE")
+	fmt.Println("======================================================")
 	fmt.Println()
-	fmt.Printf("%-15s", "1")
-	fmt.Printf("%-25s", "REVENUE THIS YEAR")
+
+	for _, report := range reports {
+
+		barLength := int((report.TotalRevenue / maxRevenue) * 40)
+
+		bar := strings.Repeat("█", barLength)
+
+		fmt.Printf(
+			"%-15s | %-40s Rp %.0f\n",
+			report.FieldType,
+			bar,
+			report.TotalRevenue,
+		)
+	}
+
 	fmt.Println()
-	fmt.Printf("%-15s", "2")
-	fmt.Printf("%-25s", "REVENUE PER CITY")
+	fmt.Println("======================================================")
+}
+
+func MostSpenderReport(data []handler.MostSpender) {
+
+	maxSpend := 0.0
+
+	for _, v := range data {
+		if v.TotalSpend > maxSpend {
+			maxSpend = v.TotalSpend
+		}
+	}
+
+	fmt.Println("==============================================================================================================")
+	fmt.Println("                                         MOST SPENDER REPORT")
+	fmt.Println("==============================================================================================================")
+
+	fmt.Printf(
+		"%-5s %-25s %-18s %-15s %-15s %-15s\n",
+		"ID",
+		"Customer Name",
+		"Phone Number",
+		"Bookings",
+		"Hours",
+		"Total Spend",
+	)
+
+	fmt.Println("--------------------------------------------------------------------------------------------------------------")
+
+	for _, v := range data {
+
+		fmt.Printf(
+			"%-5d %-25s %-18s %-15d %-15.0f Rp %-12.0f\n",
+			v.UserID,
+			v.UserName,
+			v.PhoneNumber,
+			v.TotalBookings,
+			v.TotalHours,
+			v.TotalSpend,
+		)
+	}
+
+	fmt.Println("==============================================================================================================")
+
 	fmt.Println()
-	fmt.Printf("%-15s", "3")
-	fmt.Printf("%-25s", "FIELD WITH MOST REFENUE ")
-	fmt.Println()
-	fmt.Printf("%-25s", "4")
-	fmt.Printf("%-15s", "-- ")
-	fmt.Println("================================")
+	fmt.Println("TOP SPENDER CHART")
+	fmt.Println("==============================================================================================================")
+
+	for _, v := range data {
+
+		barLength := int((v.TotalSpend / maxSpend) * 40)
+
+		bar := strings.Repeat("█", barLength)
+
+		fmt.Printf(
+			"%-20s | %-40s Rp %.0f\n",
+			v.UserName,
+			bar,
+			v.TotalSpend,
+		)
+	}
+
+	fmt.Println("==============================================================================================================")
 }

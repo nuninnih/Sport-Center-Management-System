@@ -138,6 +138,18 @@ func MenuAdmin(c *CLI) {
 					fmt.Println("Error check report, ", err)
 				}
 				TableFieldWithMostRevenue(data)
+			case 4:
+				data, err := c.Handler.ReportRevenuePerType()
+				if err != nil {
+					fmt.Println("Error check report, ", err)
+				}
+				ChartRevenuePerType(data)
+			case 5:
+				data, err := c.Handler.ReportMostSpender()
+				if err != nil {
+					fmt.Println("Error check report, ", err)
+				}
+				MostSpenderReport(data)
 			}
 
 		// "6. Logout"

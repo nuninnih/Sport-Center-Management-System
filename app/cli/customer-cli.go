@@ -12,7 +12,7 @@ func MenuCustomer(c *CLI, user handler.User) {
 	for {
 		promptCustomer := promptui.Select{
 			Label: "What do you want to do?",
-			Items: []string{"1. Check Available Field", "2. Book", "3. Logout"},
+			Items: []string{"1. Check Available Field", "2. Booking Fields", "3. Logout"},
 		}
 
 		index, _, err := promptCustomer.Run()
