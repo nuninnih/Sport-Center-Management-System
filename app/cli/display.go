@@ -317,13 +317,13 @@ func PaymentMethodTable() {
 	fmt.Println("================================")
 	fmt.Printf("%-15s", "1")
 	fmt.Printf("%-15s", "CASH \n")
-	fmt.Println("--------------------------------")
+	fmt.Println()
 	fmt.Printf("%-15s", "2")
 	fmt.Printf("%-15s", "BANK_TRANSFER \n")
-	fmt.Println("--------------------------------")
+	fmt.Println()
 	fmt.Printf("%-15s", "3")
 	fmt.Printf("%-15s", "E_WALLET \n")
-	fmt.Println("--------------------------------")
+	fmt.Println()
 	fmt.Printf("%-15s", "4")
 	fmt.Printf("%-15s", "CREDIT_CARD \n")
 	fmt.Println("================================")
@@ -369,4 +369,99 @@ func PendingPaymentTable(data interface{}) {
 	table.Header(tableData[0])
 	_ = table.Bulk(tableData[1:])
 	_ = table.Render()
+}
+
+func TableRevenueInAYear(data interface{}) {
+	tableData := [][]string{
+		{"Total City", "Total Field", "Total Transaction", "Total Revenue"},
+	}
+
+	switch v := data.(type) {
+
+	case handler.RevenueInAYear:
+		row := []string{
+			strconv.Itoa(v.TotalCity),
+			strconv.Itoa(v.TotalField),
+			strconv.Itoa(v.TotalTransaction),
+			strconv.FormatFloat(v.TotalRevenue, 'f', 2, 64),
+		}
+		tableData = append(tableData, row)
+
+	case []handler.RevenueInAYear:
+		for _, booking := range v {
+			row := []string{
+				strconv.Itoa(booking.TotalCity),
+				strconv.Itoa(booking.TotalField),
+				strconv.Itoa(booking.TotalTransaction),
+				strconv.FormatFloat(booking.TotalRevenue, 'f', 2, 64),
+			}
+			tableData = append(tableData, row)
+		}
+
+	default:
+		fmt.Println("unsupported type")
+		return
+	}
+
+	table := tablewriter.NewWriter(os.Stdout)
+	table.Header(tableData[0])
+	_ = table.Bulk(tableData[1:])
+	_ = table.Render()
+}
+
+func TableRevenuePerCity(data interface{}) {
+	tableData := [][]string{
+		{"City Name", "Total Field", "Total Transaction", "Total Revenue"},
+	}
+
+	switch v := data.(type) {
+
+	case handler.RevenuePerCity:
+		row := []string{
+			v.CityName,
+			strconv.Itoa(v.TotalField),
+			strconv.Itoa(v.TotalTransaction),
+			strconv.FormatFloat(v.TotalRevenue, 'f', 2, 64),
+		}
+		tableData = append(tableData, row)
+
+	case []handler.RevenuePerCity:
+		for _, booking := range v {
+			row := []string{
+				booking.CityName,
+				strconv.Itoa(booking.TotalField),
+				strconv.Itoa(booking.TotalTransaction),
+				strconv.FormatFloat(booking.TotalRevenue, 'f', 2, 64),
+			}
+			tableData = append(tableData, row)
+		}
+
+	default:
+		fmt.Println("unsupported type")
+		return
+	}
+
+	table := tablewriter.NewWriter(os.Stdout)
+	table.Header(tableData[0])
+	_ = table.Bulk(tableData[1:])
+	_ = table.Render()
+}
+
+func ReportListTable() {
+	fmt.Println("================================")
+	fmt.Printf("%-15s", "NO REPORT")
+	fmt.Printf("%-25s", "REPORT \n")
+	fmt.Println()
+	fmt.Printf("%-15s", "1")
+	fmt.Printf("%-25s", "REVENUE THIS YEAR \n")
+	fmt.Println()
+	fmt.Printf("%-15s", "2")
+	fmt.Printf("%-25s", "REVENUE PER CITY \n")
+	fmt.Println()
+	fmt.Printf("%-15s", "3")
+	fmt.Printf("%-25s", "-- \n")
+	fmt.Println()
+	fmt.Printf("%-25s", "4")
+	fmt.Printf("%-15s", "-- \n")
+	fmt.Println("================================")
 }

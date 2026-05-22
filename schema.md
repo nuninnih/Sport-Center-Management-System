@@ -95,3 +95,7 @@
   'REFUNDED'
 - Bookings.CreateAt should be Timestamp with default current
 - Payments.PaidAt should be Timestamp
+
+## ERD
+
+![ERD](./image.png)

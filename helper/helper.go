@@ -19,18 +19,18 @@ func GetIntegerInput(numb string) int {
 	return numbInt
 }
 
-func IsDateAfterToday(input string) error {
+func IsDateAfterToday(input string) bool {
 	inputDate, err := time.ParseInLocation("2006-01-02", input, time.Local)
 	if err != nil {
 		fmt.Println("Error parsing date:", err)
-		return err
+		return false
 	}
 
 	now := time.Now()
 	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
 
 	if inputDate.Before(today) {
-		return errors.New("Minimal input is today")
+		return false
 	}
-	return nil
+	return true
 }

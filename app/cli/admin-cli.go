@@ -11,7 +11,7 @@ func MenuAdmin(c *CLI) {
 	for {
 		promptCustomer := promptui.Select{
 			Label: "What do you want to do?",
-			Items: []string{"1. Check Pending Booking", "2. Update Booking Status", "3. Create Payment", "4. Update Status Field", "5. Logout"},
+			Items: []string{"1. Check Pending Booking", "2. Update Booking Status", "3. Create Payment", "4. Update Status Field", "5. Reports", "6. Logout"},
 		}
 
 		index, _, err := promptCustomer.Run()
@@ -108,8 +108,34 @@ func MenuAdmin(c *CLI) {
 			}
 
 			fmt.Println("Field Status Updated successfully")
-
+		// "5. Reports"
 		case 5:
+			ReportListTable()
+
+			prompt := promptui.Prompt{
+				Label:    "Please Enter Report Number",
+				Validate: helper.ValidateStringLength,
+			}
+			strId, _ := prompt.Run()
+			id := helper.GetIntegerInput(strId)
+
+			switch id {
+			case 1:
+				data, err := c.Handler.ReportRevenueInAYear()
+				if err != nil {
+					fmt.Println("Error check status field, ", err)
+				}
+				TableRevenueInAYear(data)
+			case 2:
+				data, err := c.Handler.ReportRevenuePerCity()
+				if err != nil {
+					fmt.Println("Error check status field, ", err)
+				}
+				TableRevenuePerCity(data)
+			}
+
+		// "6. Logout"
+		case 6:
 			fmt.Println("Logout..")
 			return
 		}
