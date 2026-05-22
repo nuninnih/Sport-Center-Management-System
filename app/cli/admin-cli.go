@@ -22,12 +22,14 @@ func MenuAdmin(c *CLI) {
 		}
 
 		switch index + 1 {
+		// "1. Check Pending Booking"
 		case 1:
 			pendingBooking, err := c.Handler.CheckPendingBooking()
 			if err != nil {
 				fmt.Println("Error check pending booking, ", err)
 			}
 			BookingTable(pendingBooking)
+		// "2. Update Booking Status"
 		case 2:
 			prompt := promptui.Prompt{
 				Label:    "Please Enter Booking ID",
@@ -49,6 +51,42 @@ func MenuAdmin(c *CLI) {
 			}
 
 			fmt.Println("Status Updated successfully")
+		// "3. Create Payment"
+		case 3:
+			data, err := c.Handler.CheckPendingPayment()
+			PendingPaymentTable(data)
+
+			prompt := promptui.Prompt{
+				Label:    "Please Enter Booking ID",
+				Validate: helper.ValidateStringLength,
+			}
+			bookId, _ := prompt.Run()
+			BookingID := helper.GetIntegerInput(bookId)
+
+			PaymentMethodTable()
+			prompt = promptui.Prompt{
+				Label:    "Please Enter CODE NUMBER PAYMENT",
+				Validate: helper.ValidateStringLength,
+			}
+			payment, _ := prompt.Run()
+			method := helper.GetIntegerInput(payment)
+
+			prompt = promptui.Prompt{
+				Label:    "Please Enter the Amount",
+				Validate: helper.ValidateStringLength,
+			}
+			amount, _ := prompt.Run()
+			total := helper.GetIntegerInput(amount)
+
+			err = c.Handler.CreatePayment(BookingID, method, total)
+			if err != nil {
+				fmt.Println("Error create payment", err)
+				return
+			}
+
+			fmt.Println("Payment created successfully")
+
+		// "4. Update Status Field"
 		case 4:
 			data, err := c.Handler.GetAllFieldWithStatus()
 			if err != nil {

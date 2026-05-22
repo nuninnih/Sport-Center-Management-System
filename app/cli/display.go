@@ -309,3 +309,64 @@ func RenderAvailability(bookings []handler.CheckBooking, Date, City, Type string
 	fmt.Println("🟩 Available   🟥 Booked")
 	fmt.Println("================================================================================================================")
 }
+
+func PaymentMethodTable() {
+	fmt.Println("================================")
+	fmt.Printf("%-15s", "CODE NUMBER")
+	fmt.Printf("%-15s", "PAYMENT METHOD \n")
+	fmt.Println("================================")
+	fmt.Printf("%-15s", "1")
+	fmt.Printf("%-15s", "CASH \n")
+	fmt.Println("--------------------------------")
+	fmt.Printf("%-15s", "2")
+	fmt.Printf("%-15s", "BANK_TRANSFER \n")
+	fmt.Println("--------------------------------")
+	fmt.Printf("%-15s", "3")
+	fmt.Printf("%-15s", "E_WALLET \n")
+	fmt.Println("--------------------------------")
+	fmt.Printf("%-15s", "4")
+	fmt.Printf("%-15s", "CREDIT_CARD \n")
+	fmt.Println("================================")
+}
+
+func PendingPaymentTable(data interface{}) {
+	tableData := [][]string{
+		{"BookingID", "Field", "User", "Phone No.", "Booking Date", "Total Payment"},
+	}
+
+	switch v := data.(type) {
+
+	case handler.PendingPayment:
+		row := []string{
+			strconv.Itoa(v.BookingID),
+			v.FieldName,
+			v.UserName,
+			v.PhoneNumber,
+			v.BookingDate,
+			v.Total,
+		}
+		tableData = append(tableData, row)
+
+	case []handler.PendingPayment:
+		for _, booking := range v {
+			row := []string{
+				strconv.Itoa(booking.BookingID),
+				booking.FieldName,
+				booking.UserName,
+				booking.PhoneNumber,
+				booking.BookingDate,
+				booking.Total,
+			}
+			tableData = append(tableData, row)
+		}
+
+	default:
+		fmt.Println("unsupported type")
+		return
+	}
+
+	table := tablewriter.NewWriter(os.Stdout)
+	table.Header(tableData[0])
+	_ = table.Bulk(tableData[1:])
+	_ = table.Render()
+}
