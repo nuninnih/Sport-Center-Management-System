@@ -123,15 +123,21 @@ func MenuAdmin(c *CLI) {
 			case 1:
 				data, err := c.Handler.ReportRevenueInAYear()
 				if err != nil {
-					fmt.Println("Error check status field, ", err)
+					fmt.Println("Error check report, ", err)
 				}
 				TableRevenueInAYear(data)
 			case 2:
 				data, err := c.Handler.ReportRevenuePerCity()
 				if err != nil {
-					fmt.Println("Error check status field, ", err)
+					fmt.Println("Error check report, ", err)
 				}
 				TableRevenuePerCity(data)
+			case 3:
+				data, err := c.Handler.ReportFieldWithMostRevenue()
+				if err != nil {
+					fmt.Println("Error check report, ", err)
+				}
+				TableFieldWithMostRevenue(data)
 			}
 
 		// "6. Logout"

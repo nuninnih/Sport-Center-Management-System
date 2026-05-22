@@ -20,6 +20,14 @@ type RevenuePerCity struct {
 	TotalRevenue     float64
 }
 
+type FieldMostRevenue struct {
+	FieldName     string
+	FieldType     string
+	CityName      string
+	TotalBookings int
+	TotalRevenue  float64
+}
+
 func (h *Handler) ReportRevenueInAYear() ([]RevenueInAYear, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -105,6 +113,61 @@ func (h *Handler) ReportRevenuePerCity() ([]RevenuePerCity, error) {
 			return nil, err
 		}
 		report = append(report, RevenuePerCity{CityName: CityName, TotalField: TotalField, TotalTransaction: TotalTransaction, TotalRevenue: TotalRevenue})
+	}
+
+	err = rows.Err()
+	if err != nil {
+		fmt.Println("Error with rows:", err)
+		return nil, err
+	}
+	return report, nil
+}
+
+func (h *Handler) ReportFieldWithMostRevenue() ([]FieldMostRevenue, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	rows, err := h.DB.QueryContext(ctx, `
+	SELECT
+		f.FieldName,
+		ft.TypeName AS FieldType,
+		c.CityName,
+		COUNT(b.ID) AS TotalBookings,
+		SUM(p.Amount) AS TotalRevenue
+	FROM Payments p
+	JOIN Bookings b
+		ON p.BookingID = b.ID
+	JOIN Fields f
+		ON b.FieldID = f.ID
+	JOIN FieldTypes ft
+		ON f.FieldTypeID = ft.ID
+	JOIN Cities c
+		ON f.CityID = c.ID
+	WHERE p.PaymentStatus = 'PAID'
+	AND YEAR(p.PaidAt) = YEAR(CURRENT_DATE)
+	GROUP BY f.ID
+	ORDER BY TotalRevenue DESC;`)
+
+	if err != nil {
+		fmt.Println("Error querying data:", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var report []FieldMostRevenue
+
+	for rows.Next() {
+		var FieldName string
+		var FieldType string
+		var CityName string
+		var TotalBookings int
+		var TotalRevenue float64
+		err := rows.Scan(&FieldName, &FieldType, &CityName, &TotalBookings, &TotalRevenue)
+		if err != nil {
+			fmt.Println("Error scanning row:", err)
+			return nil, err
+		}
+		report = append(report, FieldMostRevenue{FieldName: FieldName, FieldType: FieldType, CityName: CityName, TotalBookings: TotalBookings, TotalRevenue: TotalRevenue})
 	}
 
 	err = rows.Err()

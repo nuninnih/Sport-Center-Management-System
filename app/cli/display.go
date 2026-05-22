@@ -447,21 +447,61 @@ func TableRevenuePerCity(data interface{}) {
 	_ = table.Render()
 }
 
+func TableFieldWithMostRevenue(data interface{}) {
+	tableData := [][]string{
+		{"Field Name", "Field Type", "City Name", "Total Bookings", "Total Revenue"},
+	}
+
+	switch v := data.(type) {
+
+	case handler.FieldMostRevenue:
+		row := []string{
+			v.FieldName,
+			v.FieldType,
+			v.CityName,
+			strconv.Itoa(v.TotalBookings),
+			strconv.FormatFloat(v.TotalRevenue, 'f', 2, 64),
+		}
+		tableData = append(tableData, row)
+
+	case []handler.FieldMostRevenue:
+		for _, booking := range v {
+			row := []string{
+				booking.FieldName,
+				booking.FieldType,
+				booking.CityName,
+				strconv.Itoa(booking.TotalBookings),
+				strconv.FormatFloat(booking.TotalRevenue, 'f', 2, 64),
+			}
+			tableData = append(tableData, row)
+		}
+
+	default:
+		fmt.Println("unsupported type")
+		return
+	}
+
+	table := tablewriter.NewWriter(os.Stdout)
+	table.Header(tableData[0])
+	_ = table.Bulk(tableData[1:])
+	_ = table.Render()
+}
+
 func ReportListTable() {
 	fmt.Println("================================")
 	fmt.Printf("%-15s", "NO REPORT")
-	fmt.Printf("%-25s", "REPORT \n")
+	fmt.Printf("%-25s", "REPORT")
 	fmt.Println()
 	fmt.Printf("%-15s", "1")
-	fmt.Printf("%-25s", "REVENUE THIS YEAR \n")
+	fmt.Printf("%-25s", "REVENUE THIS YEAR")
 	fmt.Println()
 	fmt.Printf("%-15s", "2")
-	fmt.Printf("%-25s", "REVENUE PER CITY \n")
+	fmt.Printf("%-25s", "REVENUE PER CITY")
 	fmt.Println()
 	fmt.Printf("%-15s", "3")
-	fmt.Printf("%-25s", "-- \n")
+	fmt.Printf("%-25s", "FIELD WITH MOST REFENUE ")
 	fmt.Println()
 	fmt.Printf("%-25s", "4")
-	fmt.Printf("%-15s", "-- \n")
+	fmt.Printf("%-15s", "-- ")
 	fmt.Println("================================")
 }
