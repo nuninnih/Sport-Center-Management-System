@@ -11,7 +11,7 @@ func MenuAdmin(c *CLI) {
 	for {
 		promptCustomer := promptui.Select{
 			Label: "What do you want to do?",
-			Items: []string{"1. Check Pending Booking", "2. Update Booking Status", "3. Create Payment", "4. Update Status Field", "5. Reports", "6. Logout"},
+			Items: []string{"1. Check Pending Booking", "2. Update Booking Status", "3. Create Payment", "4. Check Field", "5. Reports", "6. Logout"},
 		}
 
 		index, _, err := promptCustomer.Run()
@@ -88,26 +88,61 @@ func MenuAdmin(c *CLI) {
 
 		// "4. Update Status Field"
 		case 4:
-			data, err := c.Handler.GetAllFieldWithStatus()
-			if err != nil {
-				fmt.Println("Error check status field, ", err)
-			}
-			FieldStatusTable(data)
+			FieldToDo()
 
-			prompt := promptui.Prompt{
-				Label:    "Please Enter Field ID to update active status",
+			checkPrompt := promptui.Prompt{
+				Label:    "Please insert Number for what you want to do with Field",
 				Validate: helper.ValidateStringLength,
 			}
-			field, _ := prompt.Run()
-			FieldID := helper.GetIntegerInput(field)
+			chID, _ := checkPrompt.Run()
+			ChooseID := helper.GetIntegerInput(chID)
 
-			err = c.Handler.UpdateStatusField(FieldID)
-			if err != nil {
-				fmt.Println("Error update status", err)
-				return
+			switch ChooseID {
+			case 1:
+				data, err := c.Handler.GetAllFieldWithStatus()
+				if err != nil {
+					fmt.Println("Error check status field, ", err)
+				}
+				FieldStatusTable(data)
+
+				prompt := promptui.Prompt{
+					Label:    "Please Enter Field ID to update active status",
+					Validate: helper.ValidateStringLength,
+				}
+				field, _ := prompt.Run()
+				FieldID := helper.GetIntegerInput(field)
+
+				err = c.Handler.UpdateStatusField(FieldID)
+				if err != nil {
+					fmt.Println("Error update status", err)
+					return
+				}
+
+				fmt.Println("Field Status Updated successfully")
+
+			case 2:
+				data, err := c.Handler.GetAllInActiveFields()
+				if err != nil {
+					fmt.Println("Error check status field, ", err)
+				}
+				FieldStatusTable(data)
+
+				prompt := promptui.Prompt{
+					Label:    "Please Enter Field ID to delete",
+					Validate: helper.ValidateStringLength,
+				}
+				field, _ := prompt.Run()
+				FieldID := helper.GetIntegerInput(field)
+
+				err = c.Handler.DeleteFieldIfNotActive(FieldID)
+				if err != nil {
+					fmt.Println("Error update status", err)
+					return
+				}
+
+				fmt.Println("Field deleted successfully")
 			}
 
-			fmt.Println("Field Status Updated successfully")
 		// "5. Reports"
 		case 5:
 			ReportListTable()

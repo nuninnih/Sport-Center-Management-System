@@ -327,6 +327,21 @@ func PaymentMethodTable() {
 	fmt.Println("==============================================================")
 }
 
+func FieldToDo() {
+	fmt.Println("====================================")
+	fmt.Println("       WHAT TO DO WITH FIELD")
+	fmt.Println("====================================")
+
+	fmt.Printf("%-5s %-35s\n", "NO", "TO DO")
+
+	fmt.Println("-------------------------------------")
+
+	fmt.Printf("%-5d %-35s\n", 1, "UPDATE STATUS FIELD")
+	fmt.Printf("%-5d %-35s\n", 2, "DELETE FIELD (NOT ACTIVE ONLY)")
+
+	fmt.Println("======================================")
+}
+
 func PendingPaymentTable(data interface{}) {
 	tableData := [][]string{
 		{"BookingID", "Field", "User", "Phone No.", "Booking Date", "Total Payment"},
